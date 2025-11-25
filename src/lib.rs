@@ -1,16 +1,15 @@
-use aws_lambda_events::sqs::{SqsBatchResponse, SqsEvent};
-use aws_sdk_sqs::operation::send_message::builders::SendMessageFluentBuilder;
-use kinetics_macro::worker;
-use lambda_http::Error;
-use lambda_runtime::LambdaEvent;
+use kinetics::macros::worker;
+use kinetics::tools::config::Config as KineticsConfig;
+use kinetics::tools::queue::{Record as QueueRecord, Retries as QueueRetries};
 use std::collections::HashMap;
+use tower::BoxError;
 
-#[worker(concurrency = 3, fifo = true, queue_alias = "example")]
+#[worker(concurrency = 3, fifo = true)]
 pub async fn worker(
-    _event: LambdaEvent<SqsEvent>,
+    _records: Vec<QueueRecord>,
     _secrets: &HashMap<String, String>,
-    _queues: &HashMap<String, SendMessageFluentBuilder>,
-) -> Result<SqsBatchResponse, Error> {
-    let sqs_batch_response = SqsBatchResponse::default();
-    Ok(sqs_batch_response)
+    _config: &KineticsConfig,
+) -> Result<QueueRetries, BoxError> {
+    let retries = QueueRetries::new();
+    Ok(retries)
 }
